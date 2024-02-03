@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Index Page</h1>
+    <textarea id="chat-server" cols="150" rows="30"></textarea> <br>
+    <input type="text" name="message" id="message">
+    <button type="button" id="send" value="send">send</button>
+{{group_name | json_script:"group_name"}}
+    <script>
+        const Group_name=JSON.parse(document.getElementById("group_name").textContent)
+        var ws=new WebSocket(`ws://127.0.0.1:8000/ws/sc/${Group_name}`)
+        // console.log(ws)
+        ws.onopen=()=>{
+            console.log("connection is opened")
+            ws.send(JSON.stringify({
+            'msg':"yellow"
+            }))
+        }
+        ws.onmessage=(event)=>{
+            console.log("message is received",event.data)
+            const parsedata=JSON.parse(event.data)
+            console.log(parsedata['msg'])
+            document.getElementById('chat-server').value+=parsedata['msg']+'\n'
+           
+        }
+        ws.onerror=()=>{
+            console.log("error")
+        }
+        ws.onclose=()=>{
+            console.log("closed")
+        }
+
+        const msg=document.getElementById('send').onclick=
+        function (event){
+            const messageInputdom=document.getElementById('message')
+            const message=messageInputdom.value
+            ws.send(JSON.stringify({
+            'msg':message
+            }))
+            // console.log(message)
+            messageInputdom.value=''
+
+        }
+       
+    </script>
+</body>
+</html>
